@@ -23,6 +23,9 @@ class Post(models.Model):
     group = models.ForeignKey(Group, on_delete=models.SET_NULL,
                               null=True, blank=True)
 
+    class Meta:
+        ordering = ('-pub_date',)
+
     def __str__(self):
         return f'{self.text[:30]}...'
 
@@ -36,6 +39,9 @@ class Comment(models.Model):
     created = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
+    class Meta:
+        ordering = ('created',)
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
@@ -43,12 +49,20 @@ class Follow(models.Model):
         on_delete=models.CASCADE,
         related_name='follows'
     )
-    following = models.ForeignKey(User, on_delete=models.CASCADE)
+    following = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='followers'
+    )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'following'],
                 name='unique_user_following'
+            ),
+            models.CheckConstraint(
+                check=~models.Q(user=models.F('following')),
+                name='check_self_following'
             )
         ]
