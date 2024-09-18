@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from api.mixins import Base64ImageField
+from api.fields import Base64ImageField
 from posts.models import Comment, Follow, Group, Post
 
 User = get_user_model()
